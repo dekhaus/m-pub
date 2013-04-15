@@ -1,0 +1,25 @@
+The goal of this document it to provide the initial set of specifications for a simple Publish/Subscribe system made up of one Publisher and at least 2 Subscribers.  Both the Publisher and Subscriber will be Ruby on Rails (RoR) applications.  
+
+All Subscribers will be instances of the same 'subscriber' application.
+
+The name of the Publisher RoR application is m-pub and the name of the Subscriber application is called m-sub
+
+	The m-pub application manages a single resource - a Product.  The Publisher application (m-pub) has a single wildcard channel called 'product.*'.  Whenever a Product is created/updated/deleted a message is written to the 'product.*' channel.  A different message is sent for each of the three aforementioned operations (create, update or delete).  The messages are as follows ....
+
+		- create : The message - 'product.:id.create.name.:name' will be written to the 'product.*' channel.  :id is replaced with the internal 'id' of the Product that was just created and :name is replaced with the Products 'name'.
+
+		- create : The message - 'product.:id.delete.name.:name' will be written to the 'product.*' channel.  :id is replaced with the internal 'id' of the Product that was just deleted and :name is replaced with the Products 'name'.
+
+		- create : The message - 'product.:id.update.old_name.:old_name.new_name.:new_name' will be written to the 'product.*' channel.  :id is replaced with the internal 'id' of the Product that was just created, :old_name is replaced with the Products previous 'name' and :new_name is replaced with the Products current 'name'
+
+
+
+	The m-sub application subscribes to the 'product.*' channel published by the m-pub application.
+	
+	The m-sub application also manages a single resource - a Product.  However the m-sub application does not have the ability to do anything other than display a list of Products that it received messages for from m-pub.  When m-sub receives ...
+	
+		- a  'create' message from m-pub - it creates a local Product
+		- an 'update' message from m-pub - it updates the appropriate local Product
+		- a  'delete' message from m-pub - it deletes the appropriate local Product
+	
+	Most importantly - if a m-sub subscriber is taken offline / is unavailable, when it comes back online - there must be a facility for it to receive the messages it missed while it was offline / unavailable.
