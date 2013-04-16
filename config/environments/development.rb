@@ -23,6 +23,6 @@ MPub::Application.configure do
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
   
-  ENV['REDISTOGO_URL'] = 'redis://dekhaus:26ac7451a49ecd481a1752ed149ad6fa@angler.redistogo.com:9407/'
+  ENV['REDISTOGO_URL'] = 'redis://redistogo:f442f695184e4ea2a3327bd7fd7a8631@catfish.redistogo.com:9450/'
 end
 

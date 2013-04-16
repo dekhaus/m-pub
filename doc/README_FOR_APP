@@ -1,2 +1,32 @@
-Use this README file to introduce your application and point to useful places in the API for learning more.
-Run "rake doc:app" to generate API documentation for your models, controllers, helpers, and libraries.
+- install/configure an instance of the 'm-pub' app (aka the Publisher)
+
+- install/configure an instance(s) of the 'm-sub' app (aka a Subscriber)
+	NOTE: if you want to run multiple 'subscriber' instances be sure to update this file ...
+	
+		m-sub/config/initializers/redis.rb
+		
+	with unique values for the 'LAST_TIMESTAMP' variables - as in each Subscriber should have a unique value for this variable.
+
+- update the url for the redis instance (ENV['REDISTOGO_URL']) used by the app in the appropriate environment file (i.e. development.rb).  Currently the redis url is pointing to a free redis instance.  If you want to use your own redis instance - just be sure to update the REDISTOGO_URL value for the Publisher and all Subscribers.
+
+- run the Publiser (rails s)
+
+- For each subscriber start a worker process (rake resque:work) before starting the Subscriber app instance (rails s -p 3001 (be sure to increment port for every Subscriber instance)).
+
+- make sure that you're starting off with an empty Redis instance ...
+
+	- open a rails console for one of the Subscribers and type REDIS.flushdb
+	
+- Once all the subscribers are running as well as the single Publisher.  Try the following ...
+
+	- go to localhost:3000 (the publisher) and create a Product - say 'Widget'
+	- go to each Subscriber (localhost:3001) and refresh the products page (localhost:3001/products) (NOTE: be sure to adjust the port for each Subscriber to the proper value for that Subscriber).  You should see the product that was created by the publisher
+	- delete the product using the Publishser app.  Refresh any Subscriber(s) and note that the product just deleted is no longer there
+	
+	To test that Subscribers can receive 'events' even if they weren't running when the events where published ...
+	
+	- shut down one or more Subscriber(s)'s worker processes (remember the worker process was created by running rake resque:work)
+	
+	- create another product using the publisher.  refresh the 'products' page for each Subscriber and note that because the background worker process wasn't running when the Publisher created the product - the subscribers don't YET have knowledge of this 'event'
+	
+	- start each Subscriber(s) worker process (rake resque:work) and note that each subscriber has created the product that the Publisher 'pushed' even though they (a Subscriber) missed the original publish event
